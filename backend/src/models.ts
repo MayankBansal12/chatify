@@ -13,18 +13,19 @@ export const users = pgTable('users', {
 // Messages Table - For each message
 export const messages = pgTable('messages', {
   messageId: uuid('message_id').primaryKey().defaultRandom(),
+  chatId: uuid('chat_id').references(() => chats.chatId).notNull(),
   content: text('content').notNull(),
   senderId: uuid('sender_id').references(() => users.id).notNull(),
+  attachment: text('attachment').default(""),
   timestamp: timestamp('timestamp').defaultNow(),
-  attachment: text('attachment_url').array(), 
   isDeleted: boolean('is_deleted').default(false),
 });
 
 // Chats Table - b/w two participants
 export const chats = pgTable('chats', {
-  chatId: uuid('chat_id').primaryKey().defaultRandom(),
-  participants: uuid('participant').array().notNull(), 
-  archived: uuid('archived_by').array(), 
+  chatId: uuid('chat_id').primaryKey().notNull(),
+  participants: uuid('participant').array().notNull(),
+  archived: uuid('archived_by').array(),
   blocked: uuid('blocked_by').array(),
   timestamp: timestamp('timestamp').defaultNow(),
 });

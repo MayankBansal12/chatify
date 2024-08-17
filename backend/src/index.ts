@@ -28,6 +28,10 @@ const server = app.listen(PORT, () => {
 
 // Connecting sockets
 import { Server } from 'socket.io'
+import { db } from './db'
+import { eq } from 'drizzle-orm/expressions';
+import { chats, messages } from './models'
+import { MessagePayLoad } from './types'
 
 const io = new Server(server, {
   pingTimeout: 120000,
@@ -37,23 +41,60 @@ const io = new Server(server, {
 })
 
 io.on('connection', (socket) => {
+  console.log('User connected:', socket.id);
+  io.emit('user-online', { userId: socket.id });
 
-  // For connecting the dm with a user
-  socket.on('join-dm', ({ roomId }) => {
-    socket.join(roomId)
-  })
+  socket.on('join-dm', async ({ roomId }) => {
+    socket.join(roomId);
+    console.log(`User joined room: ${roomId}`);
+  });
 
-  // Leave dm
   socket.on('leave-dm', ({ roomId }) => {
-    socket.leave(roomId)
-  })
+    socket.leave(roomId);
+    console.log(`User left room: ${roomId}`);
+  });
 
-  // ToDo: Create socket endpoint for sending message
-  // ToDo: Create socket endpoint for typing status
-  // ToDo: Create one endpoint for online and offline status
+  // Send message event
+  socket.on('send-message', async ({ roomId, senderId, participantId, content, url }: MessagePayLoad) => {
+    try {
+      let chat = await db.select().from(chats)
+        .where(eq(chats.chatId, roomId))
+        .limit(1);
 
+      if (chat.length === 0) {
+        // create chat if doesn't exist
+        await db.insert(chats).values({
+          chatId: roomId,
+          participants: [senderId, participantId]
+        }).returning();
+      }
+
+      const message = await db.insert(messages).values({
+        chatId: roomId,
+        content,
+        senderId
+      }).returning();
+
+      // emit the message to the room
+      io.to(roomId).emit('receive-message', message[0]);
+    } catch (error) {
+      console.error('Error sending message:', error);
+    }
+  });
+
+  // handling typing event
+  socket.on('typing', ({ roomId, userId }) => {
+    socket.to(roomId).emit('user-typing', { userId });
+  });
+
+  socket.on('stop-typing', ({ roomId, userId }) => {
+    socket.to(roomId).emit('user-stop-typing', { userId });
+  });
 
   socket.on('disconnect', () => {
-    console.log('User disconnected!')
-  })
-})
+    console.log('User disconnected:', socket.id);
+
+    // user offline
+    io.emit('user-offline', { userId: socket.id });
+  });
+});

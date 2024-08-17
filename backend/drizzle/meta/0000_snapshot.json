@@ -1,5 +1,5 @@
 {
-  "id": "cc75330b-2d67-442f-bc24-8de413b51af3",
+  "id": "92973388-5304-4c2e-a3ec-8e7df21e3f8e",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -12,8 +12,7 @@
           "name": "chat_id",
           "type": "uuid",
           "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
+          "notNull": true
         },
         "participant": {
           "name": "participant",
@@ -57,6 +56,12 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
+        "chat_id": {
+          "name": "chat_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
         "content": {
           "name": "content",
           "type": "text",
@@ -76,9 +81,9 @@
           "notNull": false,
           "default": "now()"
         },
-        "attachment_url": {
-          "name": "attachment_url",
-          "type": "text[]",
+        "attachment": {
+          "name": "attachment",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         },
@@ -92,6 +97,19 @@
       },
       "indexes": {},
       "foreignKeys": {
+        "messages_chat_id_chats_chat_id_fk": {
+          "name": "messages_chat_id_chats_chat_id_fk",
+          "tableFrom": "messages",
+          "tableTo": "chats",
+          "columnsFrom": [
+            "chat_id"
+          ],
+          "columnsTo": [
+            "chat_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
         "messages_sender_id_users_id_fk": {
           "name": "messages_sender_id_users_id_fk",
           "tableFrom": "messages",

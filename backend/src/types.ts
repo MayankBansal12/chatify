@@ -1,6 +1,6 @@
 
 export interface IUser {
-    id: number
+    id: string
     userName: string
     name: string
     email: string
@@ -8,7 +8,7 @@ export interface IUser {
 }
 
 export interface IChat {
-    chatId: number
+    chatId: string
     participants: []
     timestamp: Date
     archived: []
@@ -16,11 +16,20 @@ export interface IChat {
 }
 
 export interface IMessage {
-    messageId: number
+    messageId: string
+    chatId: string
     content: string
-    senderId: number
+    senderId: string
     timestamp: Date
-    attachment: []
+    attachment: string
     isDeleted: boolean
 }
 
+
+export interface MessagePayLoad {
+    roomId: string
+    participantId: string
+    content: string
+    senderId: string
+    url?: string
+}
