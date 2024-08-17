@@ -31,5 +31,5 @@ export interface MessagePayLoad {
     participantId: string
     content: string
     senderId: string
-    url?: string
+    attachment: string
 }

@@ -16,7 +16,7 @@ export const messages = pgTable('messages', {
   chatId: uuid('chat_id').references(() => chats.chatId).notNull(),
   content: text('content').notNull(),
   senderId: uuid('sender_id').references(() => users.id).notNull(),
-  attachment: text('attachment').default(""),
+  attachment: text('attachment').notNull(),
   timestamp: timestamp('timestamp').defaultNow(),
   isDeleted: boolean('is_deleted').default(false),
 });

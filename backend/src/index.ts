@@ -17,8 +17,10 @@ app.get('/', (req: Request, res: Response) => {
 })
 
 import userRouter from "./routes/user-route"
+import messageRouter from "./routes/message-route"
 
 app.use("/user", userRouter)
+app.use("/chat", messageRouter)
 
 const server = app.listen(PORT, () => {
   console.log(`Server is running on port http://localhost:${PORT}/`)
@@ -32,6 +34,7 @@ import { db } from './db'
 import { eq } from 'drizzle-orm/expressions';
 import { chats, messages } from './models'
 import { MessagePayLoad } from './types'
+import upload from './helpers/upload-img'
 
 const io = new Server(server, {
   pingTimeout: 120000,
@@ -55,7 +58,7 @@ io.on('connection', (socket) => {
   });
 
   // Send message event
-  socket.on('send-message', async ({ roomId, senderId, participantId, content, url }: MessagePayLoad) => {
+  socket.on('send-message', async ({ roomId, senderId, participantId, content, attachment }: MessagePayLoad) => {
     try {
       let chat = await db.select().from(chats)
         .where(eq(chats.chatId, roomId))
@@ -69,10 +72,13 @@ io.on('connection', (socket) => {
         }).returning();
       }
 
+      const url = await upload(attachment)
+
       const message = await db.insert(messages).values({
         chatId: roomId,
         content,
-        senderId
+        senderId,
+        attachment: url
       }).returning();
 
       // emit the message to the room
