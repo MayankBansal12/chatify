@@ -2,6 +2,7 @@ import dotenv from 'dotenv'
 dotenv.config()
 import express, { Response, Request, json } from 'express'
 import cors from 'cors'
+import { db } from './db'
 
 const app = express()
 app.use(express.json())

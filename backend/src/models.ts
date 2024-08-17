@@ -1,0 +1,30 @@
+import { pgTable, text, timestamp, uuid, boolean } from 'drizzle-orm/pg-core';
+
+// Users Table
+export const users = pgTable('users', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  username: text('username').notNull().unique(),
+  name: text('name').notNull(),
+  email: text('email').notNull().unique(),
+  password: text('password').notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+// Messages Table - For each message
+export const messages = pgTable('messages', {
+  messageId: uuid('message_id').primaryKey().defaultRandom(),
+  content: text('content').notNull(),
+  senderId: uuid('sender_id').references(() => users.id).notNull(),
+  timestamp: timestamp('timestamp').defaultNow(),
+  attachment: text('attachment_url').array(), 
+  isDeleted: boolean('is_deleted').default(false),
+});
+
+// Chats Table - b/w two participants
+export const chats = pgTable('chats', {
+  chatId: uuid('chat_id').primaryKey().defaultRandom(),
+  participants: uuid('participant').array().notNull(), 
+  archived: uuid('archived_by').array(), 
+  blocked: uuid('blocked_by').array(),
+  timestamp: timestamp('timestamp').defaultNow(),
+});
