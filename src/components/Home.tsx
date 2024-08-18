@@ -7,6 +7,7 @@ import {
   ArrowDownward,
   AttachFile,
   HighlightOff,
+  ArrowUpward,
 } from '@mui/icons-material'
 import { io } from 'socket.io-client'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -49,6 +50,7 @@ const Home = () => {
   const [messages, setMessages] = useState<any[]>([])
   const [message, setMessage] = useState('')
   const [showScroll, setShowScroll] = useState(false)
+  const [showScrollTop, setShowScrollTop] = useState(false)
   const chatContainerRef = useRef(null)
   const [showPhoto, setShowPhoto] = useState('')
   const [imageUrl, setImageUrl] = useState(null)
@@ -131,6 +133,13 @@ const Home = () => {
     setImageUrl('')
   }
 
+  // Scroll to top chat setion
+  const scrollToTop = () => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = 0;
+    }
+  }
+
   // Scroll to bottom chat section
   const scrollToBottom = () => {
     console.log('scroll to bottom', chatContainerRef)
@@ -141,14 +150,22 @@ const Home = () => {
   }
 
   const handleScroll = () => {
-    if (
-      chatContainerRef.current?.scrollHeight -
-      Math.ceil(chatContainerRef.current?.scrollTop) <=
-      chatContainerRef.current?.clientHeight
-    ) {
-      setShowScroll(false)
-    } else {
-      setShowScroll(true)
+    if (chatContainerRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current;
+
+      // show scroll to top when user is not at top
+      if (scrollTop > 0) {
+        setShowScrollTop(true);
+      } else {
+        setShowScrollTop(false);
+      }
+
+      // show scroll to bottom when user is not at bottom
+      if (scrollHeight - Math.ceil(scrollTop) > clientHeight) {
+        setShowScroll(true);
+      } else {
+        setShowScroll(false);
+      }
     }
   }
 
@@ -402,6 +419,7 @@ const Home = () => {
           }
         </div>
       </div>
+      
       <div className="w-2/3 h-full">
         {selectedUser === null ? <div className="w-full h-full flex justify-center items-center">No selected chat to display!</div> :
           <>
@@ -437,7 +455,7 @@ const Home = () => {
                     <img
                       src={showPhoto}
                       alt="img"
-                      className="max-w-[500px] lg:max-w-[1000px] max-h-[500px] lg:max-h-[1000px] md:min-w-[500px] md:min-h-[500px] outline-none"
+                      className="lg:!max-w-[750px] lg:!max-h-[750px] md:min-w-[500px] md:min-h-[500px] rounded-md outline-none"
                     />
                     <button
                       className="top-1 right-1 absolute text-gray-300"
@@ -470,6 +488,16 @@ const Home = () => {
                   </div>
                 </Modal>
               </div>
+
+              {showScrollTop && (
+                <button
+                  className="right-2 bottom-24 absolute bg-[var(--color-secondary)] p-1 rounded-full w-8"
+                  onClick={scrollToTop}
+                  title="Scroll to top"
+                >
+                  <ArrowUpward sx={{ color: "var(--cta-color)" }} />
+                </button>
+              )}
 
               {showScroll && (
                 <button

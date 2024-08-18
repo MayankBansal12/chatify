@@ -13,7 +13,5 @@
         "strict": false,
         "skipLibCheck": true
     },
-    "include": [
-        "./src/**/*"
-, "drizzle.config.ts"    ]
+    "include": ["./src/**/*"]
 }
