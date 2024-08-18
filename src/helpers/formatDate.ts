@@ -77,16 +77,16 @@ export const formatTime = (date: string | Date): string => {
     const givenDate = new Date(date);
 
     const diffInMs = now.getTime() - givenDate.getTime();
-    const diffInMinutes = Math.floor(diffInMs / 60000); // Convert ms to minutes
+    const diffInMinutes = Math.floor(diffInMs / 60000);
     const diffInHours = Math.floor(diffInMinutes / 60);
     const diffInDays = Math.floor(diffInHours / 24);
 
     if (diffInMinutes < 1) {
         return "now";
     } else if (diffInMinutes < 60) {
-        return `${diffInMinutes} ${diffInMinutes === 1 ? 'minute' : 'minutes'} ago`;
+        return `${diffInMinutes} ${diffInMinutes === 1 ? 'min' : 'mins'} ago`;
     } else if (diffInHours < 24) {
-        return `${diffInHours} ${diffInHours === 1 ? 'hour' : 'hours'} ago`;
+        return `${diffInHours} ${diffInHours === 1 ? 'hr' : 'hrs'} ago`;
     } else {
         return `${diffInDays} ${diffInDays === 1 ? 'day' : 'days'} ago`;
     }
