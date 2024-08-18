@@ -1,7 +1,7 @@
 import { Autocomplete, Avatar, Chip, Stack, TextField, Button, Modal } from '@mui/material';
 import React, { useEffect, useRef, useState } from 'react'
 import { FaSearch } from "react-icons/fa";
-import { IUser } from '../types/type';
+import { IUser, IUserChats } from '../types/type';
 import {
   Send,
   ArrowDownward,
@@ -10,39 +10,22 @@ import {
   ArrowUpward,
 } from '@mui/icons-material'
 import { io } from 'socket.io-client'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import useApi from '../hooks/use-api'
-import { formatTime, numericDate } from '../helpers/formatDate'
+import { formatTime } from '../helpers/formatDate'
 import { toast } from 'react-toastify'
 
 const backend = import.meta.env.VITE_SERVER
 
-const totalUsers = [
-  { label: 'Mayank', userId: 1994 },
-  { label: 'Test', userId: 1972 },
-]
-
-// const users: IUser[] = [
-// { "id": "cef2d603-90a3-4899-9887-328007e640d0", "name": "Mayank", "username": "Mayank", "email": "mcambling6@eventbrite.com" },
-// { "id": "bd1bfecc-e2ff-4fcb-bb7a-7322c634a630", "name": "Test", "username": "Test", "email": "mcambling6@eventbrite.com" },
-
-// { "id": "1e488aee-fb5a-4e93-bb1b-dd9711214e87", "name": "Dynah", "username": "dyesinin0", "email": "dfley0@cpanel.net" },
-// { "id": "acbcd705-bc4b-47fe-97d3-e428fe340a84", "name": "Mirella", "username": "mfinlayson1", "email": "mvarndall1@cisco.com" },
-// { "id": "b890037e-dd55-4d4a-8776-f690bad3cdfe", "name": "Benny", "username": "bkohnemann2", "email": "bnoye2@paginegialle.it" },
-// { "id": "6e65c38d-eba6-47fb-89da-38009a4ee2bc", "name": "Bertrando", "username": "bstollberg3", "email": "bciccoloi3@vistaprint.com" },
-// { "id": "9bed52d2-b1e9-494a-9a1b-88d88c219634", "name": "Kaitlin", "username": "kandrei4", "email": "kbencher4@hhs.gov" },
-// { "id": "846f2bf9-eb43-4cfb-819b-9ba23f98ea62", "name": "Jon", "username": "jsilverstone5", "email": "jstaries5@unesco.org" },
-// { "id": "711f8b09-b5a3-408e-8b66-48d003d28031", "name": "Max", "username": "mmandel6", "email": "mcambling6@eventbrite.com" },
-// ]
-
 const Home = () => {
   const navigate = useNavigate()
   const callApi = useApi()
-  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false)
   const [clickout, setClickout] = useState(0);
-  const [users, setUsers] = useState<IUser[]>([])
-  const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
+  const [users, setUsers] = useState<IUser[] | IUserChats[]>([])
+  const [allUsers, setAllUsers] = useState<any[]>([])
+  const [currentUsers, setCurrentUsers] = useState<IUser[] | IUserChats[]>([])
+  const [selectedUser, setSelectedUser] = useState<IUser | IUserChats | null>(null);
   const [isOnline, setIsOnline] = useState(false)
   const [isTyping, setIsTyping] = useState(false)
   const [userId, setUserId] = useState<string>("")
@@ -325,10 +308,40 @@ const Home = () => {
     }
   }
 
+  // fetch user chats
+  const fetchUsers = async () => {
+    try {
+      const res = await callApi(`/chat/user-chats?userId=${userId}`, 'GET')
+      if (res.status === 200) {
+        console.log("data for users: ", res.data)
+        setUsers(res.data?.chats)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  // fetch all users
+  const fetchAllUsers = async () => {
+    try {
+      const res = await callApi(`/chat/all-users?userId=${userId}`, 'GET')
+      if (res.status === 200) {
+        setAllUsers(res.data?.users)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   // Fetch new messages whenever participant or user changes
   useEffect(() => {
     const roomId = generateRoomId(userId, selectedUser?.id)
     fetchMessages(roomId)
+
+    if (userId) {
+      fetchUsers()
+      fetchAllUsers()
+    }
 
   }, [userId, selectedUser])
 
@@ -337,14 +350,9 @@ const Home = () => {
     scrollToBottom()
   }, [messages])
 
-  useEffect(() => {
-    if (clickout === 0)
-      setUsers([{ "id": "cef2d603-90a3-4899-9887-328007e640d0", "name": "Mayank", "username": "Mayank", "email": "mcambling6@eventbrite.com" },
-      { "id": "bd1bfecc-e2ff-4fcb-bb7a-7322c634a630", "name": "Test", "username": "Test", "email": "mcambling6@eventbrite.com" },
-      ])
-    else
-      setUsers([])
-  }, [clickout])
+  // useEffect(() => {
+
+  // }, [clickout])
 
   return (
     <div className="flex w-full h-screen">
@@ -354,7 +362,7 @@ const Home = () => {
           <Autocomplete
             freeSolo
             id="combo-box-demo"
-            options={totalUsers}
+            options={allUsers?.map((user) => user?.name)}
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -419,7 +427,7 @@ const Home = () => {
           }
         </div>
       </div>
-      
+
       <div className="w-2/3 h-full">
         {selectedUser === null ? <div className="w-full h-full flex justify-center items-center">No selected chat to display!</div> :
           <>

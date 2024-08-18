@@ -1,4 +1,14 @@
 
+export interface IUserChats {
+    id: string
+    username: string
+    name: string
+    chatId: string
+    timestamp: Date
+    archived: [],
+    blocked: []
+}
+
 export interface IUser {
     id: string
     username: string
