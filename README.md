@@ -16,6 +16,61 @@ The chat is real-time and shows the user's online/offline/typing status. Users c
 -> Sort chats on the basis of archived, blocked, and unread chats.
 <br/>
 
+### How to setup locally
+
+Start by Fork and cloning the repo and move on to setup client and backend/server
+
+#### For client side
+
+1. Install dependencies:
+   ```bash
+   npm install
+   
+2. Build the project:
+   ```bash
+   npm run build
+   
+3. Run the server:
+   ```bash
+   npm run dev
+
+Client will be running on port 5173
+
+.env file
+```
+VITE_SERVER = http://localhost:5000
+```
+
+#### For server side
+
+1. Install dependencies:
+   ```bash
+   npm install
+
+2. Connect to db and run migrations:
+  ```bash
+   npx drizzle-kit generate
+   npx drizzle-kit migrate
+  ```
+   
+3. Run the backend server:
+   ```bash
+   npm run dev
+
+server will run on port 5000
+
+Make sure to define these variables inside .env file
+
+```
+DB_URL = postgresql_db_url
+JWT_SECRET = your_secret
+CLOUDINARY_NAME = cloudinary_name
+CLOUDINARY_API = cloudinary_api
+CLOUDINARY_SECRET = cloudinary_secret
+```
+Note: Cloudinary is used for uploading media in messages
+
+
 ### Screenshots and demo
 
 You can view the loom demo video [here](https://www.loom.com/share/1109842a94544584850e0434ec329100?sid=96e53993-40e4-4655-b0ac-28039ecb5cb5)
