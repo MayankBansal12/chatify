@@ -1,5 +1,5 @@
 {
-  "id": "92973388-5304-4c2e-a3ec-8e7df21e3f8e",
+  "id": "93171d7b-2357-4cbd-882e-a1b4cbb4cd8e",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -10,7 +10,7 @@
       "columns": {
         "chat_id": {
           "name": "chat_id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": true,
           "notNull": true
         },
@@ -58,7 +58,7 @@
         },
         "chat_id": {
           "name": "chat_id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -74,18 +74,18 @@
           "primaryKey": false,
           "notNull": true
         },
+        "attachment": {
+          "name": "attachment",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "timestamp": {
           "name": "timestamp",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false,
           "default": "now()"
-        },
-        "attachment": {
-          "name": "attachment",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
         },
         "is_deleted": {
           "name": "is_deleted",

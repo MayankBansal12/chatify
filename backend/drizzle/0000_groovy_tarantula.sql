@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS "chats" (
-	"chat_id" uuid PRIMARY KEY NOT NULL,
+	"chat_id" text PRIMARY KEY NOT NULL,
 	"participant" uuid[] NOT NULL,
 	"archived_by" uuid[],
 	"blocked_by" uuid[],
@@ -8,11 +8,11 @@ CREATE TABLE IF NOT EXISTS "chats" (
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "messages" (
 	"message_id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"chat_id" uuid NOT NULL,
+	"chat_id" text NOT NULL,
 	"content" text NOT NULL,
 	"sender_id" uuid NOT NULL,
+	"attachment" text NOT NULL,
 	"timestamp" timestamp DEFAULT now(),
-	"attachment" text,
 	"is_deleted" boolean DEFAULT false
 );
 --> statement-breakpoint

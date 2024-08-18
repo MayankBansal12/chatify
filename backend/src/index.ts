@@ -44,21 +44,31 @@ const io = new Server(server, {
 })
 
 io.on('connection', (socket) => {
-  console.log('User connected:', socket.id);
-  io.emit('user-online', { userId: socket.id });
+  const userId = socket.handshake.query.userId;
 
-  socket.on('join-dm', async ({ roomId }) => {
+  console.log('User connected:', userId);
+
+  socket.on('join-dm', ({ roomId }) => {
     socket.join(roomId);
-    console.log(`User joined room: ${roomId}`);
+    console.log(`User ${userId} joined room ${roomId}`);
+
+    // broadcast to the room that the user is online
+    socket.to(roomId).emit('user-online', { userId });
   });
+
 
   socket.on('leave-dm', ({ roomId }) => {
     socket.leave(roomId);
-    console.log(`User left room: ${roomId}`);
+    console.log(`User ${userId} left room ${roomId}`);
+
+    // broadcast to the room that the user is offline
+    socket.to(roomId).emit('user-offline', { userId });
   });
 
   // Send message event
   socket.on('send-message', async ({ roomId, senderId, participantId, content, attachment }: MessagePayLoad) => {
+    io.emit('user-online', { userId: senderId });
+
     try {
       let chat = await db.select().from(chats)
         .where(eq(chats.chatId, roomId))
@@ -89,18 +99,18 @@ io.on('connection', (socket) => {
   });
 
   // handling typing event
-  socket.on('typing', ({ roomId, userId }) => {
-    socket.to(roomId).emit('user-typing', { userId });
+  socket.on('typing', ({ roomId }) => {
+    socket.to(roomId).emit('typing', { userId });
   });
 
-  socket.on('stop-typing', ({ roomId, userId }) => {
-    socket.to(roomId).emit('user-stop-typing', { userId });
+  socket.on('stop-typing', ({ roomId }) => {
+    socket.to(roomId).emit('stop-typing', { userId });
   });
 
   socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id);
+    console.log('User disconnected:', userId);
 
     // user offline
-    io.emit('user-offline', { userId: socket.id });
+    io.emit('user-offline', { userId: userId });
   });
 });

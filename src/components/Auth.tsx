@@ -63,6 +63,7 @@ const Auth = (props: Props) => {
             if (res.ok) {
                 const token = data.token
                 localStorage.setItem('token', token)
+                localStorage.setItem('userId', data?.userId)
                 toast(data?.message || "Login success", {
                     position: "bottom-right",
                     type: "success",
@@ -136,6 +137,7 @@ const Auth = (props: Props) => {
                 // show data.message success message
                 const token = data.token
                 localStorage.setItem('token', token)
+                localStorage.setItem('userId', data?.userId)
                 toast(data?.message || "User Registered", {
                     position: "bottom-right",
                     type: "success",
