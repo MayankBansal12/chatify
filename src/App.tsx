@@ -1,11 +1,28 @@
-import { useState } from 'react'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Home from './components/Home'
+import PageNotFound from './components/PageNotFound'
+import Auth from './components/Auth'
 
 function App() {
 
+  const router = createBrowserRouter([
+    {
+      path: '/',
+      element: <Home />,
+    },
+    {
+      path: '/auth/:authType?',
+      element: <Auth />,
+    }
+  ])
+
   return (
-    <div className="bg-blue-500">
-      Hello world!
-    </div>
+    <>
+      <RouterProvider router={router} />
+      <ToastContainer />
+    </>
   )
 }
 

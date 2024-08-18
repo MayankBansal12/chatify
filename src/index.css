@@ -5,6 +5,15 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  :root {
+    --color-primary: #FFFFFF;
+    --color-secondary: #F6F6F6;
+    --cta-color: #EF6144;
+    --accent-color: #A6A6A6;
+    --text-color: #3C3C3C;
+  }
+}
 
 ::-webkit-scrollbar {
   width: 6px;
