@@ -166,9 +166,6 @@ const Home = () => {
         lastDate = messageDate
         lastSender = item.senderId
 
-        console.log('last Date ', lastDate, ' messagDate: ', messageDate)
-        console.log("ids: ", item?.senderId, userId)
-
         return (
           <div key={item.id}>
             {showDate && (
@@ -224,6 +221,8 @@ const Home = () => {
       });
       return;
     }
+    fetchUsers(userId)
+    fetchAllUsers(userId)
 
     const newSocket = io(backend, {
       query: {
@@ -274,6 +273,7 @@ const Home = () => {
       });
 
       return () => {
+        setIsTyping(false)
         socket.emit('leave-dm', { roomId });
         socket.off('user-online');
         socket.off('user-offline');
@@ -309,7 +309,7 @@ const Home = () => {
   }
 
   // fetch user chats
-  const fetchUsers = async () => {
+  const fetchUsers = async (userId: string) => {
     try {
       const res = await callApi(`/chat/user-chats?userId=${userId}`, 'GET')
       if (res.status === 200) {
@@ -322,26 +322,39 @@ const Home = () => {
   }
 
   // fetch all users
-  const fetchAllUsers = async () => {
+  const fetchAllUsers = async (userId: string) => {
     try {
       const res = await callApi(`/chat/all-users?userId=${userId}`, 'GET')
       if (res.status === 200) {
         setAllUsers(res.data?.users)
+        console.log(res.data?.users)
       }
     } catch (error) {
       console.log(error)
     }
   }
 
+  const handleNewUserClick = async (e, newValue) => {
+    if (newValue === null) return;
+
+    let selectuser;
+    selectuser = allUsers.find((user) => user.username === newValue);
+    if (!selectuser) return;
+
+    let existingUser = users.find((user) => user?.id === selectuser?.id)
+    console.log("exising user: ", existingUser)
+
+    if (!existingUser) {
+      setUsers((users) => [...users, selectuser])
+    }
+
+    setSelectedUser(selectuser)
+  }
+
   // Fetch new messages whenever participant or user changes
   useEffect(() => {
     const roomId = generateRoomId(userId, selectedUser?.id)
     fetchMessages(roomId)
-
-    if (userId) {
-      fetchUsers()
-      fetchAllUsers()
-    }
 
   }, [userId, selectedUser])
 
@@ -362,7 +375,8 @@ const Home = () => {
           <Autocomplete
             freeSolo
             id="combo-box-demo"
-            options={allUsers?.map((user) => user?.name)}
+            options={allUsers?.map((user) => user?.username)}
+            onChange={handleNewUserClick}
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -405,7 +419,7 @@ const Home = () => {
           {users.length > 0 ? users.map((user) => (
             user.id !== userId && (
               <div key={user.id} className={`flex gap-4 border-b-[1px] hover:bg-[var(--color-secondary)] cursor-pointer ${selectedUser?.id === user.id && "bg-[var(--color-secondary)]"}`} onClick={() => setSelectedUser(user)}>
-                <div className={`w-[0.6rem] ${selectedUser?.id === user.id ? "bg-[var(--cta-color)]" : ""} `}></div>
+                <div className={`w-[0.3rem] ${selectedUser?.id === user.id ? "bg-[var(--cta-color)]" : ""} `}></div>
                 <div className="py-4 flex gap-2">
                   <Avatar>{user?.name?.substring(0, 1)}</Avatar>
                   <div className="flex flex-col">
@@ -415,8 +429,8 @@ const Home = () => {
                       <p className="text-sm text-[var(--accent-color)]">today</p>
                     </div>
                     <div>
-                      <span className="text-[var(--text-color)] font-medium">Mayank: </span>
-                      <span>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Veritatis ab assumenda molestias architecto dolores autem accusantium dolore</span>
+                      <span className="text-[var(--text-color)] font-medium"></span>
+                      <span>Your chat with {user.name} is secure. </span>
                     </div>
                   </div>
                 </div>
